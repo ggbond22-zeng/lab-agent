@@ -15,7 +15,9 @@ class Settings(BaseSettings):
     LLM_BASE_URL: str
 
     # 配置并指定 .env 文件的路径和编码
-    model_config = SettingsConfigDict(env_file=BASE_DIR / ".env",env_file_encoding='utf-8')
+    # extra='ignore'：忽略 .env / 系统环境变量里的多余配置项（如 Render 平台自动注入的变量），
+    # 否则任何一个未在下方声明的变量都会导致启动时报 ValidationError
+    model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", env_file_encoding='utf-8', extra='ignore')
 
 
 settings = Settings()
