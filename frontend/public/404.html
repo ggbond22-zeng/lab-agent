@@ -4,11 +4,12 @@
     <meta charset="utf-8">
     <title>智能实验室预约系统</title>
     <script>
-      // GitHub Pages 不支持 history 路由的子路径（如 /lab-agent/manager/home 会 404）
-      // 思路：把用户实际访问的完整地址存入 sessionStorage，然后跳回真正的应用入口 /lab-agent/
-      // 应用加载时（index.html 里的脚本）会读回这个地址并还原，用户无感知
-      sessionStorage.redirect = location.href;
-      location.replace('/lab-agent/');
+      // GitHub Pages 是纯静态托管，没有 SPA 的 URL 回退能力：
+      // 直接访问 /lab-agent/manager/home 这类 history 路由地址会命中 404 页面（就是本文件）。
+      // 处理流程：把真实地址暂存到 sessionStorage → 跳回入口页 →
+      // 入口页 index.html 里的恢复脚本读取后用 replaceState 还原地址，交给 vue-router 正常接管。
+      sessionStorage.setItem('redirect', location.href)
+      location.replace('/lab-agent/')
     </script>
   </head>
   <body></body>

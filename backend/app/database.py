@@ -2,15 +2,16 @@ from sqlalchemy import create_engine, DateTime
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 from config import settings
 from datetime import datetime
+import certifi
 
-# SQLite 时允许多线程共用连接：FastAPI 的同步接口运行在线程池中，
-# 默认 check_same_thread=True 会因"跨线程使用连接"报错（如 sqlite3.ProgrammingError）
-engine_kwargs = {'pool_pre_ping': True, 'echo': True}
-if settings.DATABASE_URL.startswith('sqlite'):
-    engine_kwargs['connect_args'] = {'check_same_thread': False}
+# TiDB Cloud（云端数据库）强制要求 TLS 加密连接，需要指定 CA 证书来校验服务端身份
+# 连接串里包含 tidbcloud.com 时才启用，本地 MySQL（127.0.0.1）不受影响
+connect_args = {}
+if 'tidbcloud.com' in settings.DATABASE_URL:
+    connect_args.update(ssl_verify_cert=True, ssl_ca=certifi.where())
 
 # 创建数据库引擎
-engine = create_engine(settings.DATABASE_URL, **engine_kwargs)
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True, echo=True, connect_args=connect_args)
 
 # 连接数据库会话工厂
 SessionLocal = sessionmaker(bind=engine, autoflush=False)

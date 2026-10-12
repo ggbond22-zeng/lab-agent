@@ -21,7 +21,6 @@ from common.exceptions import (
 import asyncio
 from contextlib import asynccontextmanager
 from services import reservation_service, kb_services
-from seed import seed_if_empty
 
 Base.metadata.create_all(bind=engine)  # 创建数据库表结构  在创建时，虽然代码中不会用到User类，但在创建数据库表结构时，
 # SQLAlchemy会根据User类的定义来创建对应的数据库表。
@@ -29,12 +28,6 @@ Base.metadata.create_all(bind=engine)  # 创建数据库表结构  在创建时�
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """ 全局异步任务 """
-    # 空库时自动写入演示数据（云端重启后数据清空，靠这里恢复；本地有数据则跳过）
-    try:
-        await asyncio.to_thread(seed_if_empty)
-    except Exception:
-        logger.exception("演示数据初始化失败，服务继续启动")
-
     # 预热向量数据库
     try:
         await asyncio.to_thread(kb_services.warmup)  # to_thread 不会阻塞事件循环
@@ -50,7 +43,7 @@ app = FastAPI(lifespan=lifespan)
 origins = [
     "http://localhost:5173",
 	"http://127.0.0.1:5173",
-	"https://ggbond22-zeng.github.io",  # GitHub Pages 线上前端地址
+	"https://ggbond22-zeng.github.io",   # GitHub Pages 线上前端地址
 ]
 
 # 后端配置跨域，防止前端和后端的连接端口不一样导致在进行数据传输时出现错误

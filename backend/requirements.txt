@@ -6,16 +6,21 @@ python-multipart==0.0.32
 # 数据库
 SQLAlchemy==2.0.51
 PyMySQL==1.1.0
-pydantic-settings==2.2.1
+cryptography>=42.0.0
 
-# 鉴权
+# 配置与鉴权
+pydantic==2.13.5
+pydantic-settings==2.2.1
 PyJWT==2.13.0
 bcrypt==5.0.0
+certifi>=2024.0.0
 
-# LangGraph 智能体
+# AI 相关
+openai==3.14.1
 langgraph==1.2.11
 langchain-openai==1.6.2
+langchain-core==1.6.3
 
-# RAG 向量检索
+# RAG 向量检索（torch 由 Render 构建命令单独装 CPU 版，避免拉取 CUDA 大包）
 chromadb==1.5.9
 sentence-transformers==6.0.1

@@ -7,7 +7,7 @@ from Schemas.files import UploadRequest
 from fastapi import APIRouter, UploadFile, File, Request
 from common.exceptions import BusinessException
 from common.response import Response
-from config import ALLOWED_EXTENSIONS, MAX_FILE_SIZE, UPLOAD_DIR, settings
+from config import ALLOWED_EXTENSIONS, MAX_FILE_SIZE, UPLOAD_DIR
 
 router = APIRouter(prefix="/files", tags=["文件管理"])
 
@@ -43,9 +43,10 @@ async def upload(request: Request, file: UploadFile = File(...)):
     with open(save_path, 'wb') as f:
         shutil.copyfileobj(file.file, f)
 
-    # 返回绝对 URL：云端部署时前端在另一个域名下，相对路径 /uploads/xxx 会 404
-    # 优先用配置的 PUBLIC_BASE_URL（如 https://lab-agent.onrender.com），否则用请求自身的 base_url
-    base_url = (settings.PUBLIC_BASE_URL or str(request.base_url)).rstrip('/')
+    # 返回绝对 URL：云端部署时前端（GitHub Pages）和后端不同域名，
+    # 相对路径 /uploads/xxx 会被解析到前端域名下导致图片 404
+    # 用请求自身的 base_url 拼接（本地= http://127.0.0.1:8000，云端= Render 公网地址）
+    base_url = str(request.base_url).rstrip('/')
     return Response.success(
         data=UploadRequest(
             original_name=original_name,

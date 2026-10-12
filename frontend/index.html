@@ -6,15 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能实验室预约系统</title>
     <script>
-      // 配合 public/404.html 使用：GitHub Pages 上刷新子路由会先经过 404.html，
-      // 它把真实地址存在 sessionStorage 后跳回应用入口，这里再还原地址栏，路由即可正常匹配
-      (function () {
-        var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-        if (redirect && redirect !== location.href) {
-          history.replaceState(null, '', redirect);
+      // 配合 public/404.html 实现 history 路由刷新不 404：
+      // 404.html 会把真实地址存入 sessionStorage 再跳回本页，这里在应用启动前还原地址。
+      // 本脚本放在 head 中且 main.js 是 type=module（deferred），保证先于 vue-router 执行。
+      try {
+        var redirect = sessionStorage.getItem('redirect')
+        if (redirect) {
+          sessionStorage.removeItem('redirect')
+          var path = redirect.replace(/^https?:\/\/[^/]+/, '')   // 去掉域名，只留 /lab-agent/xxx 路径
+          history.replaceState(null, '', path)
         }
-      })();
+      } catch (e) {}
     </script>
   </head>
   <body>
