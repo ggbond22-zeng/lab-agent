@@ -125,13 +125,13 @@ onMounted(async () => {
       labTotal.value = labRes.data?.total ?? 0
     }
   } catch {
-    labTotal = '-'
+    labTotal.value = '-'
   }
   try {
     const resRes = await ReservationPageListApi({ page: 1, page_size: 10 })
     if (resRes.code === 200) reservationTotal.value = resRes.data?.total ?? 0
   } catch {
-    reservationTotal = '-'
+    reservationTotal.value = '-'
   }
 })
 </script>

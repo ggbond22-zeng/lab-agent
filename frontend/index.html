@@ -5,6 +5,17 @@
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能实验室预约系统</title>
+    <script>
+      // 配合 public/404.html 使用：GitHub Pages 上刷新子路由会先经过 404.html，
+      // 它把真实地址存在 sessionStorage 后跳回应用入口，这里再还原地址栏，路由即可正常匹配
+      (function () {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, '', redirect);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

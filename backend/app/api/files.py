@@ -4,16 +4,16 @@ import uuid
 from pathlib import Path
 import shutil
 from Schemas.files import UploadRequest
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Request
 from common.exceptions import BusinessException
 from common.response import Response
-from config import ALLOWED_EXTENSIONS, MAX_FILE_SIZE, UPLOAD_DIR
+from config import ALLOWED_EXTENSIONS, MAX_FILE_SIZE, UPLOAD_DIR, settings
 
 router = APIRouter(prefix="/files", tags=["文件管理"])
 
 
 @router.post("/upload")
-async def upload(file: UploadFile = File(...)):
+async def upload(request: Request, file: UploadFile = File(...)):
     """文件存储管理"""
     # 1. 先判断文件名是否存在
     if not file.filename:
@@ -43,11 +43,14 @@ async def upload(file: UploadFile = File(...)):
     with open(save_path, 'wb') as f:
         shutil.copyfileobj(file.file, f)
 
+    # 返回绝对 URL：云端部署时前端在另一个域名下，相对路径 /uploads/xxx 会 404
+    # 优先用配置的 PUBLIC_BASE_URL（如 https://lab-agent.onrender.com），否则用请求自身的 base_url
+    base_url = (settings.PUBLIC_BASE_URL or str(request.base_url)).rstrip('/')
     return Response.success(
         data=UploadRequest(
             original_name=original_name,
             disk_name=disk_name,
             size=file.size,
-            url=f"/uploads/{disk_name}",
+            url=f"{base_url}/uploads/{disk_name}",
         )
     )

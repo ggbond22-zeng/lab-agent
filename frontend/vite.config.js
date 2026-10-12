@@ -5,7 +5,10 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
-export default defineConfig({
+// command: 'serve' 为本地开发, 'build' 为打包
+// 打包时 base 指向 /lab-agent/（GitHub Pages 的仓库子路径），否则线上资源 404 白屏
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/lab-agent/' : '/',
   plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
@@ -26,4 +29,4 @@ export default defineConfig({
       }
     }
   }
-})
+}))

@@ -3,8 +3,14 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 from config import settings
 from datetime import datetime
 
+# SQLite 时允许多线程共用连接：FastAPI 的同步接口运行在线程池中，
+# 默认 check_same_thread=True 会因"跨线程使用连接"报错（如 sqlite3.ProgrammingError）
+engine_kwargs = {'pool_pre_ping': True, 'echo': True}
+if settings.DATABASE_URL.startswith('sqlite'):
+    engine_kwargs['connect_args'] = {'check_same_thread': False}
+
 # 创建数据库引擎
-engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True, echo=True)
+engine = create_engine(settings.DATABASE_URL, **engine_kwargs)
 
 # 连接数据库会话工厂
 SessionLocal = sessionmaker(bind=engine, autoflush=False)
