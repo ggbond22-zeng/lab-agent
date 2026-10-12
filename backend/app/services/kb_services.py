@@ -1,26 +1,61 @@
-from config import BASE_DIR
-from chromadb.utils import embedding_functions
+from config import BASE_DIR, settings
+from openai import OpenAI
+import numpy as np
 import chromadb
 from chromadb.api.models.Collection import Collection
+from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
 
 
 KB_DIR = BASE_DIR / 'data' / 'kb'
 CHROMA_DIR = BASE_DIR / 'data' / 'chroma'
 
+# 嵌入模型走 SiliconFlow 的 API（OpenAI 兼容 /embeddings 接口）
+# 不再本地跑 sentence-transformers：免费容器(512MB)装不下 torch+模型，
+# API 方式云端/本地行为一致，且向量维度固定 1024
+EMBEDDING_MODEL = 'BAAI/bge-m3'
+
+_client = OpenAI(api_key=settings.LLM_API_KEY, base_url=settings.LLM_BASE_URL)
+
+
+class ApiEmbeddingFunction(EmbeddingFunction[Documents]):
+    """ 自定义 ChromaDB 嵌入函数：批量文本 → 调嵌入 API → 返回向量列表
+    chromadb 1.x 的协议要求实现 name / get_config / build_from_config，
+    用于把嵌入函数的配置持久化到集合元数据里，重启后能校验一致性
+    """
+
+    def __init__(self, model: str = EMBEDDING_MODEL):
+        self.model = model
+
+    def __call__(self, input: Documents) -> Embeddings:
+        res = _client.embeddings.create(model=self.model, input=input)
+        # 按 index 排序防止返回乱序；再 做 L2 归一化（归一化后 L2 排序等价于余弦相似度）
+        vecs = [item.embedding for item in sorted(res.data, key=lambda x: x.index)]
+        arr = np.asarray(vecs, dtype=float)
+        norm = np.linalg.norm(arr, axis=1, keepdims=True)
+        return (arr / np.maximum(norm, 1e-12)).tolist()
+
+    @staticmethod
+    def name() -> str:
+        return 'siliconflow_bge_m3'
+
+    def get_config(self) -> dict:
+        return {'model': self.model}
+
+    @staticmethod
+    def build_from_config(config: dict) -> 'ApiEmbeddingFunction':
+        return ApiEmbeddingFunction(model=config.get('model', EMBEDDING_MODEL))
+
+
 _collection = None  # 用于存储 ChromaDB 的集合对象
 
-_embedding_fn = None
-
-# 向量化模型
+_embedding_fn = None  # 向量化模型
 def get_embedding_fn():
     """ 向量模型的懒加载 """
     global _embedding_fn
     if _embedding_fn is not None:
         return _embedding_fn
 
-    _embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name="BAAI/bge-small-zh-v1.5"
-    )
+    _embedding_fn = ApiEmbeddingFunction()
     return _embedding_fn
 
 
