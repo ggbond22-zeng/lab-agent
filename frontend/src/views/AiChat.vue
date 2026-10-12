@@ -8,7 +8,9 @@
     <div
       ref="listRef"
       style="
-        height: 465px;
+        /* 高度随视口自适应：桌面约 465px，手机端自动收紧，min-height 保证最小可用 */
+        height: calc(100vh - 300px);
+        min-height: 320px;
         padding: 6px 4px;
         background-color: #fafafa;
         border-radius: 8px;

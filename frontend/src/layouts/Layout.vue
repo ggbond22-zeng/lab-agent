@@ -3,12 +3,12 @@
     <!-- style="min-height: 100vh;" 表示最小高度为视口高度 -->
     <el-container style="min-height: 100vh">
       <!-- display: flex 让元素水平排列 font-weight: bold 加粗字体-->
-      <el-header style="display: flex; background-color: #fff; border-bottom: 1px solid #fff">
-        <div
-          style="flex: 1; display: flex; align-items: center; font-size: 25px; font-weight: bold"
-        >
-          <img src="@/assets/imgs/logo.png" style="width: 30px; margin-right: 15px" />
-          实验室预约系统
+      <el-header class="app-header" style="display: flex; background-color: #fff; border-bottom: 1px solid #fff">
+        <div class="header-title">
+          <!-- 移动端：汉堡按钮唤出抽屉菜单 -->
+          <el-icon v-if="isMobile" class="menu-btn" @click="menuOpen = true"><icon-menu /></el-icon>
+          <img src="@/assets/imgs/logo.png" class="logo" />
+          <span class="title-text">实验室预约系统</span>
         </div>
         <div style="display: flex; align-items: center">
           <el-dropdown @command="handleCommand">
@@ -30,43 +30,19 @@
         </div>
       </el-header>
       <el-container>
-        <el-aside width="200px">
-          <!-- default-active="/home" 给指定菜单设置高亮 -->
-          <el-menu router style="height: 100%" :default-active="router.currentRoute.value.path">
-            <el-menu-item index="/manager/home">
-              <el-icon><icon-menu /></el-icon>
-              <span>系统首页</span>
-            </el-menu-item>
-            <el-menu-item index="/manager/ai-chat">
-              <el-icon><ChatDotRound /></el-icon>
-              <span>智能体预约</span>
-            </el-menu-item>
-            <el-menu-item index="/manager/lablist" v-if="userInfo?.role === 'student'">
-              <el-icon><OfficeBuilding /></el-icon>
-              <span>实验室列表</span>
-            </el-menu-item>
-            <el-menu-item index="/manager/my-reservation" v-if="userInfo?.role === 'student'">
-              <el-icon><List /></el-icon>
-              <span>我的预约</span>
-            </el-menu-item>
-            <el-menu-item index="/manager/lab" v-if="userInfo?.role === 'admin'">
-              <el-icon><House /></el-icon>
-              <span>实验室管理</span>
-            </el-menu-item>
-            <el-menu-item index="/manager/equipment" v-if="userInfo?.role === 'admin'">
-              <el-icon><Setting /></el-icon>
-              <span>设备列表管理</span>
-            </el-menu-item>
-            <el-menu-item index="/manager/audit-reservation" v-if="userInfo?.role === 'admin'">
-              <el-icon><OfficeBuilding /></el-icon>
-              <span>预约审核</span>
-            </el-menu-item>
-            <el-menu-item index="/manager/user" v-if="userInfo?.role === 'admin'">
-              <el-icon><User /></el-icon>
-              <span>用户管理</span>
-            </el-menu-item>
-          </el-menu>
+        <!-- 桌面端：常驻侧边栏；移动端（<768px）隐藏，改用抽屉 -->
+        <el-aside width="200px" v-if="!isMobile">
+          <SideMenu />
         </el-aside>
+        <el-drawer
+          v-if="isMobile"
+          v-model="menuOpen"
+          direction="ltr"
+          size="200px"
+          :with-header="false"
+        >
+          <SideMenu />
+        </el-drawer>
         <el-main>
           <router-view />
         </el-main>
@@ -76,12 +52,35 @@
 </template>
 
 <script setup>
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import router from '@/router'
 import { logout } from '@/utils/auth'
-import { House, Menu as IconMenu, User, Setting, OfficeBuilding, ChatDotRound, List } from '@element-plus/icons-vue'
+import { Menu as IconMenu } from '@element-plus/icons-vue'
 import { useUser } from '@/utils/user'
+import SideMenu from './SideMenu.vue'
 
 const { userInfo } = useUser()
+
+// 移动端判定：视口宽 < 768px 视为手机，侧边栏收进抽屉
+const isMobile = ref(window.innerWidth < 768)
+const menuOpen = ref(false)
+
+const onResize = () => {
+  isMobile.value = window.innerWidth < 768
+  // 切回桌面端时确保抽屉关闭
+  if (!isMobile.value) menuOpen.value = false
+}
+
+onMounted(() => window.addEventListener('resize', onResize))
+onUnmounted(() => window.removeEventListener('resize', onResize))
+
+// 路由切换后自动关闭移动端抽屉菜单
+watch(
+  () => router.currentRoute.value.path,
+  () => {
+    menuOpen.value = false
+  }
+)
 
 const handleCommand = (command) => {
   if (command === 'profile') {
@@ -94,3 +93,48 @@ const handleCommand = (command) => {
   }
 }
 </script>
+
+<style scoped>
+/* 头部样式从内联抽出，便于做移动端媒体查询 */
+.app-header {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-bottom: 1px solid #fff;
+}
+.header-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  font-size: 25px;
+  font-weight: bold;
+  min-width: 0;
+}
+.logo {
+  width: 30px;
+  margin-right: 15px;
+}
+.title-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.menu-btn {
+  font-size: 22px;
+  margin-right: 12px;
+  cursor: pointer;
+}
+/* 手机端：标题字号收紧，避免挤压用户名 */
+@media (max-width: 768px) {
+  .app-header {
+    height: 50px;
+  }
+  .header-title {
+    font-size: 18px;
+  }
+  .logo {
+    width: 24px;
+    margin-right: 8px;
+  }
+}
+</style>

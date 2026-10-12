@@ -115,7 +115,8 @@ const register = async () => {
   align-items: center;
 }
 .register-box {
-  width: 400px;
+  /* min()：桌面保持 400px 定宽，手机端最宽只占视口 92%，避免横向溢出 */
+  width: min(400px, 92vw);
   border-radius: 8px;
   text-align: center;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);

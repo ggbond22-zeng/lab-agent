@@ -51,3 +51,28 @@ img {
 .el-tooltip__trigger {
   outline: none !important;
 }
+
+/* ===== 移动端适配（<768px）===== */
+@media (max-width: 768px) {
+  /* 收紧主内容、头部、卡片的内边距，给小屏留更多空间 */
+  .el-main {
+    --el-main-padding: 10px;
+  }
+  .el-header {
+    --el-header-padding: 0 10px;
+  }
+  .el-card__body {
+    padding: 12px;
+  }
+
+  /* 顶部搜索栏：输入框和按钮允许换行，避免横向溢出 */
+  .el-pagination {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  /* 表格在窄屏下靠自身的横向滚动展示，占满容器即可 */
+  .el-table {
+    width: 100% !important;
+  }
+}
