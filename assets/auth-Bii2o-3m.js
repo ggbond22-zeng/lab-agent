@@ -1,1 +1,0 @@
-import{t as e}from"./request-CSKRNkpA.js";function t(t){return e({url:`/api/auth/login`,method:`post`,data:t})}function n(t){return e({url:`/api/auth/register`,method:`post`,data:t})}export{n,t};
