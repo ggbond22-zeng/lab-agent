@@ -35,7 +35,7 @@
           >登 录</el-button
         >
         <!-- style="color: var(--el-color-primary)" 从element-plus 中默认的主题色 -->
-        <div style="text-align: right; margin-top: 10px" ;>
+        <div style="text-align: right; margin-top: 10px">
           还没有账号？请 <router-link style="color: var(--el-color-primary)" to="/register">注册</router-link>
         </div>
       </div>

@@ -43,7 +43,7 @@
           >注 册</el-button
         >
         <!-- style="color: var(--el-color-primary)" 从element-plus 中默认的主题色 -->
-        <div style="text-align: right; margin-top: 10px" ;>
+        <div style="text-align: right; margin-top: 10px">
           已有账号？请
           <router-link style="color: var(--el-color-primary)" to="/login">登录</router-link>
         </div>
