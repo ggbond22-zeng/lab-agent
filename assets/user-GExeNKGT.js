@@ -1,0 +1,1 @@
+import{at as e,fn as t,it as n,nt as r}from"./dist-BKmvZF4h.js";var i=t(r());function a(){function t(t){n(t.token),e(t.user),i.value=t.user}function a(t){e(t),i.value=t}function o(){i.value=r()}return{userInfo:i,saveLoginData:t,updateData:a,reloadData:o}}export{a as t};

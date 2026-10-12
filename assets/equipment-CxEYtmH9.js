@@ -1,0 +1,1 @@
+import{t as e}from"./request-CWU83VhJ.js";function t(t){return e({url:`/api/equipment/list`,method:`get`,params:t})}function n(t){return e({url:`/api/equipment`,method:`post`,data:t})}function r(t,n){return e({url:`/api/equipment/${t}`,method:`put`,data:n})}function i(t){return e({url:`/api/equipment/${t}`,method:`delete`})}export{r as i,i as n,t as r,n as t};
