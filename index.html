@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/lab-agent/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能实验室预约系统</title>
+    <script>
+      // 配合 public/404.html 实现 history 路由刷新不 404：
+      // 404.html 会把真实地址存入 sessionStorage 再跳回本页，这里在应用启动前还原地址。
+      // 本脚本放在 head 中且 main.js 是 type=module（deferred），保证先于 vue-router 执行。
+      try {
+        var redirect = sessionStorage.getItem('redirect')
+        if (redirect) {
+          sessionStorage.removeItem('redirect')
+          var path = redirect.replace(/^https?:\/\/[^/]+/, '')   // 去掉域名，只留 /lab-agent/xxx 路径
+          history.replaceState(null, '', path)
+        }
+      } catch (e) {}
+    </script>
+    <script type="module" crossorigin src="/lab-agent/assets/index-BnF3J5b5.js"></script>
+    <link rel="modulepreload" crossorigin href="/lab-agent/assets/dist-DYCiqSrv.js">
+    <link rel="modulepreload" crossorigin href="/lab-agent/assets/message-CaUCJ56b.js">
+    <link rel="stylesheet" crossorigin href="/lab-agent/assets/index-CmlO85Zl.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>

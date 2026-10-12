@@ -1,0 +1,1 @@
+import{t as e}from"./request-CSKRNkpA.js";function t(t){let n=new FormData;return n.append(`file`,t),e({url:`/api/files/upload`,method:`post`,data:n,headers:{"Content-Type":`multipart/form-data`}})}export{t};
